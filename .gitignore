@@ -197,3 +197,10 @@ cython_debug/
 .idea/
 .vscode/
 secrets/credentials.yml!/.vscode/
+# refactor additions
+.env
+backend/uv.lock.json
+backend/.venv/
+frontend/.next/
+frontend/.turbo/
+frontend/next-env.d.ts

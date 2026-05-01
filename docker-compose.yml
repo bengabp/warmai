@@ -1,36 +1,51 @@
-version: '3'
-
 services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      WARMAI_ENVIRONMENT: ${WARMAI_ENVIRONMENT:-development}
+      WARMAI_MONGODB_URL: mongodb://mongo:27017
+      WARMAI_MONGODB_DB: ${WARMAI_MONGODB_DB:-warmai}
+      WARMAI_SECRET_KEY: ${WARMAI_SECRET_KEY:?set WARMAI_SECRET_KEY in .env}
+      WARMAI_SIGNUP_ACCESS_CODE: ${WARMAI_SIGNUP_ACCESS_CODE:-admin}
+      WARMAI_CORS_ORIGINS: '${WARMAI_CORS_ORIGINS:-["http://localhost:3000"]}'
+      WARMAI_LOG_FORMAT: ${WARMAI_LOG_FORMAT:-json}
+      WARMAI_LOG_LEVEL: ${WARMAI_LOG_LEVEL:-INFO}
+      WARMAI_WARMUP_RECIPIENT_OVERRIDE: ${WARMAI_WARMUP_RECIPIENT_OVERRIDE:-}
+    volumes:
+      - backend_data:/app/data
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+
   frontend:
     build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    ports:
-      - "8098:3000"
-    env_file: &app_env
-      - .env
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080}
+        NEXT_PUBLIC_API_VERSION: v1
+    restart: unless-stopped
     depends_on:
-      - api
-    restart: always
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
 
-  api:
-    build: &backend_build
-      context: .
-      dockerfile: Dockerfile.api
-    ports:
-      - "8070:8080"
-    volumes: &backend_volumes
-      - ./backend/files/:/app/files/
-    restart: always
-    depends_on:
-      - worker
-    env_file: *app_env
-  
-  worker:
-    build: *backend_build
-    ports:
-      - "8203:8203"
-    volumes: *backend_volumes
-    restart: always
-    env_file: *app_env
-    command: ["python3" ,"-m", "scheduler.main"]
+volumes:
+  mongo_data:
+  backend_data:
