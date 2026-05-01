@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Plus, Pause, Play, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,27 +15,66 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/page-header";
 import { errorMessage } from "@/lib/api";
 import {
   useDeleteWarmups,
   useUpdateWarmupState,
   useWarmups,
 } from "@/lib/queries";
-import type { WarmupState } from "@/lib/types";
+import type { Warmup, WarmupState } from "@/lib/types";
 
-const STATE_VARIANT: Record<WarmupState, "default" | "secondary" | "destructive" | "outline"> = {
-  notStarted: "outline",
-  running: "default",
-  paused: "secondary",
-  completed: "secondary",
-  failed: "destructive",
+const STATE_TONE: Record<WarmupState, string> = {
+  notStarted: "text-muted-foreground border-border",
+  running: "text-status-ok border-status-ok/40",
+  paused: "text-status-warn border-status-warn/40",
+  completed: "text-foreground border-border",
+  failed: "text-status-err border-status-err/40",
 };
+
+function StatBlock({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string | number;
+  tone?: "ok" | "warn" | "err" | "muted";
+}) {
+  const toneClass =
+    tone === "ok"
+      ? "text-status-ok"
+      : tone === "warn"
+        ? "text-status-warn"
+        : tone === "err"
+          ? "text-status-err"
+          : tone === "muted"
+            ? "text-muted-foreground"
+            : "text-foreground";
+  return (
+    <div className="rounded-md border border-border bg-card px-4 py-3">
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+        {label}
+      </div>
+      <div className={`text-2xl font-semibold tabular-nums mt-1 ${toneClass}`}>
+        {value}
+      </div>
+    </div>
+  );
+}
 
 export default function WarmupsPage() {
   const warmups = useWarmups();
   const updateState = useUpdateWarmupState();
   const remove = useDeleteWarmups();
   const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const counts = useMemo(() => {
+    const items: Warmup[] = warmups.data?.items ?? [];
+    const c = { running: 0, paused: 0, failed: 0, completed: 0, notStarted: 0 };
+    for (const w of items) c[w.state] += 1;
+    return c;
+  }, [warmups.data]);
 
   function toggle(id: string) {
     setSelected((s) => {
@@ -63,40 +102,61 @@ export default function WarmupsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <header className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Warmups</h1>
-          <p className="text-sm text-muted-foreground">
-            Manage email warmup campaigns
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {selected.size > 0 && (
-            <>
-              <Button variant="outline" size="sm" onClick={() => bulk("pause")}>
-                <Pause className="h-4 w-4 mr-1" /> Pause
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => bulk("resume")}>
-                <Play className="h-4 w-4 mr-1" /> Resume
-              </Button>
-              <Button variant="destructive" size="sm" onClick={() => bulk("delete")}>
-                <Trash className="h-4 w-4 mr-1" /> Delete
-              </Button>
-            </>
-          )}
-          <Button asChild>
-            <Link href="/warmups/new">
-              <Plus className="h-4 w-4 mr-1" /> New warmup
-            </Link>
-          </Button>
-        </div>
-      </header>
+    <div className="animate-fade-in">
+      <PageHeader
+        title="Warmups"
+        subtitle="Email warmup campaigns and their current state"
+        actions={
+          <>
+            {selected.size > 0 && (
+              <>
+                <Button variant="outline" size="sm" onClick={() => bulk("pause")}>
+                  <Pause className="h-3.5 w-3.5 mr-1.5" /> Pause
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => bulk("resume")}>
+                  <Play className="h-3.5 w-3.5 mr-1.5" /> Resume
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-status-err border-status-err/40 hover:text-status-err"
+                  onClick={() => bulk("delete")}
+                >
+                  <Trash className="h-3.5 w-3.5 mr-1.5" /> Delete
+                </Button>
+              </>
+            )}
+            <Button asChild size="sm">
+              <Link href="/warmups/new">
+                <Plus className="h-3.5 w-3.5 mr-1.5" /> New warmup
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
-      <div className="rounded-md border bg-card">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-8">
+        {[
+          { label: "Running", value: counts.running, tone: "ok" as const },
+          { label: "Paused", value: counts.paused, tone: "warn" as const },
+          { label: "Failed", value: counts.failed, tone: "err" as const },
+          { label: "Completed", value: counts.completed, tone: "muted" as const },
+          { label: "Not started", value: counts.notStarted, tone: "muted" as const },
+        ].map((s, i) => (
+          <div
+            key={s.label}
+            className="animate-slide-in"
+            data-stagger={i}
+          >
+            <StatBlock {...s} />
+          </div>
+        ))}
+      </div>
+
+      <div className="rounded-md border border-border bg-card overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="border-border hover:bg-transparent">
               <TableHead className="w-[40px]" />
               <TableHead>Name</TableHead>
               <TableHead>State</TableHead>
@@ -109,46 +169,64 @@ export default function WarmupsPage() {
           <TableBody>
             {warmups.isLoading &&
               Array.from({ length: 4 }).map((_, i) => (
-                <TableRow key={i}>
+                <TableRow key={i} className="border-border">
                   <TableCell colSpan={7}>
-                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-5 w-full" />
                   </TableCell>
                 </TableRow>
               ))}
             {warmups.data?.items.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-12">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell
+                  colSpan={7}
+                  className="text-center text-muted-foreground py-12 text-sm"
+                >
                   No warmups yet — create your first one.
                 </TableCell>
               </TableRow>
             )}
-            {warmups.data?.items.map((w) => (
-              <TableRow key={w._id}>
+            {warmups.data?.items.map((w, i) => (
+              <TableRow
+                key={w._id}
+                className="border-border animate-fade-in"
+                data-stagger={Math.min(i, 14)}
+              >
                 <TableCell>
                   <input
                     type="checkbox"
+                    className="accent-primary"
                     checked={selected.has(w._id)}
                     onChange={() => toggle(w._id)}
                     aria-label={`Select ${w.name}`}
                   />
                 </TableCell>
                 <TableCell className="font-medium">
-                  <Link href={`/warmups/${w._id}`} className="hover:underline">
+                  <Link
+                    href={`/warmups/${w._id}`}
+                    className="hover:text-primary transition-colors"
+                  >
                     {w.name}
                   </Link>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={STATE_VARIANT[w.state]}>{w.state}</Badge>
+                  <Badge
+                    variant="outline"
+                    className={`uppercase text-[10px] tracking-wider ${STATE_TONE[w.state]}`}
+                  >
+                    {w.state}
+                  </Badge>
                 </TableCell>
                 <TableCell className="text-muted-foreground">
                   {w.mailserverName ?? "—"}
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-right tabular-nums">
                   {w.currentWarmupDay}
                   {w.maxDays > 0 ? ` / ${w.maxDays}` : ""}
                 </TableCell>
-                <TableCell className="text-right">{w.totalAddressesMailed}</TableCell>
-                <TableCell className="text-muted-foreground text-sm truncate max-w-[280px]">
+                <TableCell className="text-right tabular-nums">
+                  {w.totalAddressesMailed}
+                </TableCell>
+                <TableCell className="text-muted-foreground text-xs truncate max-w-[280px]">
                   {w.statusText ?? ""}
                 </TableCell>
               </TableRow>

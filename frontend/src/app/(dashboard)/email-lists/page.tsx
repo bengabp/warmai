@@ -16,7 +16,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -25,6 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PageHeader } from "@/components/page-header";
 import {
   useDeleteEmailLists,
   useEmailLists,
@@ -82,71 +89,82 @@ export default function EmailListsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <header className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Email lists</h1>
-          <p className="text-sm text-muted-foreground">
-            Upload CSVs of contacts (client) or reply mailboxes
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          {selected.size > 0 && (
-            <Button variant="destructive" size="sm" onClick={onDelete}>
-              <Trash className="h-4 w-4 mr-1" /> Delete
-            </Button>
-          )}
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-1" /> Upload list
+    <div className="animate-fade-in">
+      <PageHeader
+        title="Email lists"
+        subtitle="CSV-uploaded contacts (client) or reply mailboxes"
+        actions={
+          <>
+            {selected.size > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onDelete}
+                className="text-status-err border-status-err/40 hover:text-status-err"
+              >
+                <Trash className="h-3.5 w-3.5 mr-1.5" /> Delete
               </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Upload email list</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={onUpload} className="grid gap-4 mt-2">
-                <div className="grid gap-2">
-                  <Label htmlFor="lname">Name</Label>
-                  <Input id="lname" value={name} onChange={(e) => setName(e.target.value)} required />
-                </div>
-                <div className="grid gap-2">
-                  <Label>List type</Label>
-                  <Select value={listType} onValueChange={(v) => setListType(v as EmailListType)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="clientEmails">Client</SelectItem>
-                      <SelectItem value="replyEmails">Reply</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="file">CSV file</Label>
-                  <Input id="file" type="file" accept=".csv" ref={fileRef} required />
-                  <p className="text-xs text-muted-foreground">
-                    Required columns: <code>email</code>. Reply lists also require{" "}
-                    <code>password</code>.
-                  </p>
-                </div>
-                <DialogFooter>
-                  <Button type="submit" disabled={upload.isPending}>
-                    <Upload className="h-4 w-4 mr-1" />
-                    {upload.isPending ? "Uploading…" : "Upload"}
-                  </Button>
-                </DialogFooter>
-              </form>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </header>
+            )}
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm">
+                  <Plus className="h-3.5 w-3.5 mr-1.5" /> Upload list
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Upload email list</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={onUpload} className="grid gap-4 mt-2">
+                  <div className="grid gap-2">
+                    <Label htmlFor="lname">Name</Label>
+                    <Input
+                      id="lname"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>List type</Label>
+                    <Select
+                      value={listType}
+                      onValueChange={(v) => setListType(v as EmailListType)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="clientEmails">Client</SelectItem>
+                        <SelectItem value="replyEmails">Reply</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="file">CSV file</Label>
+                    <Input id="file" type="file" accept=".csv" ref={fileRef} required />
+                    <p className="text-xs text-muted-foreground">
+                      Required column: <code>email</code>. Reply lists also require{" "}
+                      <code>password</code>.
+                    </p>
+                  </div>
+                  <DialogFooter>
+                    <Button type="submit" disabled={upload.isPending}>
+                      <Upload className="h-3.5 w-3.5 mr-1.5" />
+                      {upload.isPending ? "Uploading…" : "Upload"}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </>
+        }
+      />
 
-      <div className="rounded-md border bg-card">
+      <div className="rounded-md border border-border bg-card overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow>
+            <TableRow className="border-border hover:bg-transparent">
               <TableHead className="w-[40px]" />
               <TableHead>Name</TableHead>
               <TableHead>Type</TableHead>
@@ -157,24 +175,32 @@ export default function EmailListsPage() {
           <TableBody>
             {lists.isLoading &&
               Array.from({ length: 3 }).map((_, i) => (
-                <TableRow key={i}>
+                <TableRow key={i} className="border-border">
                   <TableCell colSpan={5}>
-                    <Skeleton className="h-6 w-full" />
+                    <Skeleton className="h-5 w-full" />
                   </TableCell>
                 </TableRow>
               ))}
             {lists.data?.items.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground py-12">
+              <TableRow className="border-border hover:bg-transparent">
+                <TableCell
+                  colSpan={5}
+                  className="text-center text-muted-foreground py-12 text-sm"
+                >
                   No email lists yet.
                 </TableCell>
               </TableRow>
             )}
-            {lists.data?.items.map((l) => (
-              <TableRow key={l._id}>
+            {lists.data?.items.map((l, i) => (
+              <TableRow
+                key={l._id}
+                className="border-border animate-fade-in"
+                data-stagger={Math.min(i, 14)}
+              >
                 <TableCell>
                   <input
                     type="checkbox"
+                    className="accent-primary"
                     checked={selected.has(l._id)}
                     onChange={() => toggle(l._id)}
                     aria-label={`Select ${l.name}`}
@@ -182,11 +208,18 @@ export default function EmailListsPage() {
                 </TableCell>
                 <TableCell className="font-medium">{l.name}</TableCell>
                 <TableCell>
-                  <Badge variant={l.emailListType === "replyEmails" ? "default" : "secondary"}>
+                  <Badge
+                    variant="outline"
+                    className={`uppercase text-[10px] tracking-wider ${
+                      l.emailListType === "replyEmails"
+                        ? "text-accent border-accent/40"
+                        : "text-muted-foreground border-border"
+                    }`}
+                  >
                     {l.emailListType === "replyEmails" ? "Reply" : "Client"}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-right">{l.totalEmails}</TableCell>
+                <TableCell className="text-right tabular-nums">{l.totalEmails}</TableCell>
                 <TableCell className="text-muted-foreground">
                   {new Date(l.createdAt * 1000).toLocaleDateString()}
                 </TableCell>

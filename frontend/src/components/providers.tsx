@@ -16,7 +16,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={client}>
       {children}
-      <Toaster richColors position="top-right" />
+      <Toaster richColors position="bottom-right" offset={20} />
     </QueryClientProvider>
   );
 }

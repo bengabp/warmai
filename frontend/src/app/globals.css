@@ -3,56 +3,83 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Light (kept usable but the app is designed for dark) */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
+  --radius: 0.375rem;
+
+  --background: oklch(0.985 0 0);
+  --foreground: oklch(0.18 0 0);
+
+  --card: oklch(0.985 0 0);
+  --card-foreground: oklch(0.18 0 0);
+
+  --popover: oklch(0.985 0 0);
+  --popover-foreground: oklch(0.18 0 0);
+
+  --primary: oklch(0.5 0.14 162);           /* deeper green for contrast on white */
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
+
+  --secondary: oklch(0.94 0 0);
+  --secondary-foreground: oklch(0.22 0 0);
+
+  --muted: oklch(0.94 0 0);
+  --muted-foreground: oklch(0.45 0 0);
+
+  --accent: oklch(0.45 0.22 305);           /* violet — readable on white */
+  --accent-foreground: oklch(0.985 0 0);
+
+  --destructive: oklch(0.55 0.22 25);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+
+  --border: oklch(0.88 0 0);
+  --input: oklch(0.88 0 0);
+  --ring: oklch(0.5 0.14 162);
+
+  --status-ok: oklch(0.48 0.15 162);        /* WCAG AA on white */
+  --status-warn: oklch(0.55 0.17 75);
+  --status-err: oklch(0.55 0.22 25);
 }
 
+/* Dark — the OnlyPhones look */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --background: oklch(0.13 0 0);            /* near-black */
+  --foreground: oklch(0.88 0 0);
+
+  --card: oklch(0.155 0 0);                 /* subtly lifted */
+  --card-foreground: oklch(0.88 0 0);
+
+  --popover: oklch(0.155 0 0);
+  --popover-foreground: oklch(0.88 0 0);
+
+  --primary: oklch(0.86 0.16 162);          /* mint accent */
+  --primary-foreground: oklch(0.18 0 0);
+
+  --secondary: oklch(0.2 0 0);
+  --secondary-foreground: oklch(0.88 0 0);
+
+  --muted: oklch(0.18 0 0);
+  --muted-foreground: oklch(0.6 0 0);
+
+  --accent: oklch(0.55 0.22 305);           /* violet for highlighted/selected */
+  --accent-foreground: oklch(0.97 0 0);
+
+  --destructive: oklch(0.65 0.22 25);
+  --destructive-foreground: oklch(0.97 0 0);
+
+  --border: oklch(0.22 0 0);
+  --input: oklch(0.24 0 0);
+  --ring: oklch(0.86 0.16 162);
+
+  --status-ok: oklch(0.86 0.16 162);
+  --status-warn: oklch(0.83 0.16 86);
+  --status-err: oklch(0.7 0.22 25);
 }
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -72,13 +99,156 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-status-ok: var(--status-ok);
+  --color-status-warn: var(--status-warn);
+  --color-status-err: var(--status-err);
+
+  --font-sans: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo,
+    Consolas, "Liberation Mono", monospace;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo,
+    Consolas, "Liberation Mono", monospace;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  html,
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv11";
+    letter-spacing: -0.005em;
+  }
+  /* Tighter, terminal-y headings */
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.015em;
+  }
+}
+
+/* ---------- Animations ---------- */
+
+@keyframes wm-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wm-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wm-pulse-dot {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 currentColor, 0 0 6px currentColor;
+  }
+  50% {
+    opacity: 0.7;
+    box-shadow: 0 0 0 4px transparent, 0 0 8px currentColor;
+  }
+}
+
+@keyframes wm-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-fade-in {
+  animation: wm-fade-in 0.32s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.animate-slide-in {
+  animation: wm-slide-in 0.36s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.animate-pulse-dot {
+  animation: wm-pulse-dot 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Generic stagger — combine with animate-fade-in / animate-slide-in.
+ * Apply `data-stagger="N"` on the row, with N in [0,15]. */
+[data-stagger] {
+  animation-delay: calc(var(--stagger, 0) * 35ms);
+}
+[data-stagger="0"]  { --stagger: 0; }
+[data-stagger="1"]  { --stagger: 1; }
+[data-stagger="2"]  { --stagger: 2; }
+[data-stagger="3"]  { --stagger: 3; }
+[data-stagger="4"]  { --stagger: 4; }
+[data-stagger="5"]  { --stagger: 5; }
+[data-stagger="6"]  { --stagger: 6; }
+[data-stagger="7"]  { --stagger: 7; }
+[data-stagger="8"]  { --stagger: 8; }
+[data-stagger="9"]  { --stagger: 9; }
+[data-stagger="10"] { --stagger: 10; }
+[data-stagger="11"] { --stagger: 11; }
+[data-stagger="12"] { --stagger: 12; }
+[data-stagger="13"] { --stagger: 13; }
+[data-stagger="14"] { --stagger: 14; }
+
+/* Smooth color shifts on light/dark toggle for elements not covered by the
+ * View Transitions reveal (e.g. toasts, focus rings persisting across nav). */
+* {
+  transition:
+    background-color 240ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 240ms cubic-bezier(0.4, 0, 0.2, 1),
+    color 240ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+button,
+a,
+[role="button"] {
+  transition:
+    background-color 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    transform 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 180ms ease,
+    box-shadow 180ms ease;
+}
+button:active:not([disabled]),
+[role="button"]:active {
+  transform: scale(0.97);
+}
+
+/* ---------- View Transitions (theme swap) ---------- */
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }
